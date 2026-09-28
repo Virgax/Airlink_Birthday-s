@@ -196,8 +196,8 @@ def _generate_birthday_pair(
     photo_h = _decode_photo(foto_b64, x2-x1, y2-y1)
     h_tpl.paste(photo_h, (x1, y1), photo_h if photo_h.mode == "RGBA" else None)
 
-    draw_fitted(hd, H_NAME, nombre_completo, 40, BLACK, min_size=18)
-    draw_fitted(hd, H_DATE, date_text,        52, WHITE, min_size=22)
+    draw_fitted(hd, H_NAME, nombre_completo, 70, BLACK, min_size=20)
+    draw_fitted(hd, H_DATE, date_text,        45, WHITE, min_size=45)
 
     # ── VERTICAL ─────────────────────────────────────────────
     v_tpl = Image.open(os.path.join(_base_dir(), "Cumpleanos_Vertical.png")).convert("RGBA")
@@ -207,8 +207,8 @@ def _generate_birthday_pair(
     photo_v = _decode_photo(foto_b64, x2-x1, y2-y1)
     v_tpl.paste(photo_v, (x1, y1), photo_v if photo_v.mode == "RGBA" else None)
 
-    draw_fitted(vd, V_NAME, nombre_completo, 38, BLACK, min_size=16)
-    draw_fitted(vd, V_DATE, date_text,        60, WHITE, min_size=20)
+    draw_fitted(vd, V_NAME, nombre_completo, 70, BLACK, min_size=20)
+    draw_fitted(vd, V_DATE, date_text,        45, WHITE, min_size=45)
 
     # Resize to standard digital-signage resolution for NoviSign
     h_tpl = h_tpl.resize((1920, 1080), Image.LANCZOS)
