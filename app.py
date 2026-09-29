@@ -7,6 +7,7 @@ Railway FastAPI service
   • /birthday/horizontal   → Serve latest H banner (NoviSign)
   • /birthday/vertical     → Serve latest V banner (NoviSign)
   • /birthday/status       → How many birthdays loaded today
+  • /birthday/view/{h|v}   → HTML wrapper w/ cache-buster (NoviSign Web Page widget)
 """
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
@@ -475,6 +476,45 @@ def birthday_vertical():
         return Response(status_code=204)
     return Response(content=png, media_type="image/png",
                     headers={"Cache-Control": "no-store"})
+
+
+_VIEW_HTML = """<!doctype html>
+<html><head><meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>Airlink Birthday</title>
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden}
+  img{width:100vw;height:100vh;object-fit:contain;display:block}
+</style></head>
+<body><img id="b" alt="">
+<script>
+(function(){
+  var SRC="__SRC__", EVERY=__EVERY__*1000, img=document.getElementById("b"), busy=false;
+  function load(){
+    if(busy) return; busy=true;
+    var n=new Image();
+    n.onload=function(){ img.src=n.src; busy=false; };
+    n.onerror=function(){ busy=false; };           /* 204 / error: keep last frame */
+    n.src=SRC+"?t="+Date.now();
+  }
+  load(); setInterval(load, EVERY);
+})();
+</script></body></html>"""
+
+def _view(src: str, every: int) -> Response:
+    html = _VIEW_HTML.replace("__SRC__", src).replace("__EVERY__", str(max(5, every)))
+    return Response(content=html, media_type="text/html",
+                    headers={"Cache-Control": "no-store"})
+
+@app.get("/birthday/view/horizontal")
+def birthday_view_h(every: int = 20):
+    """HTML wrapper for NoviSign 'Web Page' widget — beats the player's image cache.
+    Reloads /birthday/horizontal with a cache-buster every `every` seconds (default 20)."""
+    return _view("/birthday/horizontal", every)
+
+@app.get("/birthday/view/vertical")
+def birthday_view_v(every: int = 20):
+    return _view("/birthday/vertical", every)
 
 
 @app.get("/birthday/status")
