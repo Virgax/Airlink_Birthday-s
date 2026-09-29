@@ -115,13 +115,13 @@ MESES_ABREV = ["ENE-JAN","FEB","MAR","ABR-APR","MAY","JUN",
 # ── Zone coordinates (native template pixels) ──────────────────
 # HORIZONTAL template: 1671 × 941
 H_PHOTO  = (113, 142, 703, 729)    # gray rounded frame interior
-H_NAME   = (840, 370, 1440, 445)   # red-bordered name box interior
-H_DATE   = (960, 487, 1400, 548)   # green date bar text zone
+H_NAME   = (840, 365, 1440, 440)   # red-bordered name box interior
+H_DATE   = (960, 477, 1400, 538)   # green date bar text zone
 
 # VERTICAL template: 941 × 1672
 V_PHOTO  = (197, 440, 742, 958)    # gray frame interior
-V_NAME   = (115, 1025, 775, 1090)  # red-bordered name box
-V_DATE   = (275, 1132, 770, 1186)  # green date bar text zone
+V_NAME   = (115, 1020, 775, 1085)  # red-bordered name box
+V_DATE   = (275, 1122, 770, 1176)  # green date bar text zone
 
 def _placeholder_photo(w: int, h: int) -> Image.Image:
     """Gray silhouette placeholder when no employee photo available."""
@@ -182,7 +182,8 @@ def _generate_birthday_pair(
     month: int,
 ) -> tuple[bytes, bytes]:
     """Build (horizontal_png, vertical_png) for one employee."""
-    nombre_completo = f"{nombre} {apellido1} {apellido2}".strip().upper()
+    primer_nombre = nombre.split()[0] if nombre else nombre
+    nombre_completo = f"{primer_nombre} {apellido1}".strip().upper()
     date_text = _format_date(day, month)
 
     BLACK = (0, 0, 0, 255)
@@ -196,8 +197,8 @@ def _generate_birthday_pair(
     photo_h = _decode_photo(foto_b64, x2-x1, y2-y1)
     h_tpl.paste(photo_h, (x1, y1), photo_h if photo_h.mode == "RGBA" else None)
 
-    draw_fitted(hd, H_NAME, nombre_completo, 70, BLACK, min_size=20)
-    draw_fitted(hd, H_DATE, date_text,        45, WHITE, min_size=45)
+    draw_fitted(hd, H_NAME, nombre_completo, 120, BLACK, min_size=20)
+    draw_fitted(hd, H_DATE, date_text,         60, WHITE, min_size=60)
 
     # ── VERTICAL ─────────────────────────────────────────────
     v_tpl = Image.open(os.path.join(_base_dir(), "Cumpleanos_Vertical.png")).convert("RGBA")
@@ -207,8 +208,8 @@ def _generate_birthday_pair(
     photo_v = _decode_photo(foto_b64, x2-x1, y2-y1)
     v_tpl.paste(photo_v, (x1, y1), photo_v if photo_v.mode == "RGBA" else None)
 
-    draw_fitted(vd, V_NAME, nombre_completo, 70, BLACK, min_size=20)
-    draw_fitted(vd, V_DATE, date_text,        45, WHITE, min_size=45)
+    draw_fitted(vd, V_NAME, nombre_completo, 120, BLACK, min_size=20)
+    draw_fitted(vd, V_DATE, date_text,         60, WHITE, min_size=60)
 
     # Resize to standard digital-signage resolution for NoviSign
     h_tpl = h_tpl.resize((1920, 1080), Image.LANCZOS)
